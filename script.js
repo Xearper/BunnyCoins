@@ -22,15 +22,8 @@ const closeLeaderboardButton = document.getElementById('closeLeaderboard');
 const leaderboardModal = document.getElementById('leaderboard');
 const leaderboardList = document.getElementById('leaderboardList');
 const achievementsElement = document.getElementById('achievements');
-const soundToggleElement = document.getElementById('soundToggle');
 
 let achievements = [];
-let soundEnabled = true;
-
-// Sound effects
-const clickSound = new Audio('click.mp3');
-const upgradeSound = new Audio('upgrade.mp3');
-const levelUpSound = new Audio('level-up.mp3');
 
 function loadGame() {
     const savedData = localStorage.getItem('bunnyCoinsGame');
@@ -43,10 +36,8 @@ function loadGame() {
         multiplierCost = data.multiplierCost;
         level = data.level;
         achievements = data.achievements || [];
-        soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
         updateDisplay();
         updateAchievements();
-        updateSoundToggle();
     }
 }
 
@@ -58,8 +49,7 @@ function saveGame() {
         autoClickerCost: autoClickerCost,
         multiplierCost: multiplierCost,
         level: level,
-        achievements: achievements,
-        soundEnabled: soundEnabled
+        achievements: achievements
     };
     localStorage.setItem('bunnyCoinsGame', JSON.stringify(gameData));
 }
@@ -79,25 +69,10 @@ function createClickFeedback(amount) {
     const feedback = document.createElement('div');
     feedback.textContent = `+${amount}`;
     feedback.className = 'click-feedback';
-    feedback.style.left = `${Math.random() * 100}%`;
+    feedback.style.left = `${Math.random() * 80 + 10}%`;
+    feedback.style.top = `${Math.random() * 80 + 10}%`;
     clickFeedbackElement.appendChild(feedback);
     setTimeout(() => clickFeedbackElement.removeChild(feedback), 1000);
-}
-
-function playSound(sound) {
-    if (soundEnabled) {
-        sound.play();
-    }
-}
-
-function updateSoundToggle() {
-    soundToggleElement.textContent = soundEnabled ? '🔊' : '🔇';
-}
-
-function toggleSound() {
-    soundEnabled = !soundEnabled;
-    updateSoundToggle();
-    saveGame();
 }
 
 function checkAchievements() {
@@ -153,7 +128,6 @@ function levelUp() {
     if (coins >= levelUpCost) {
         coins -= levelUpCost;
         level++;
-        playSound(levelUpSound);
         updateDisplay();
         saveGame();
         checkAchievements();
@@ -165,7 +139,8 @@ bunnyElement.addEventListener('click', () => {
     const earned = multiplier;
     coins += earned;
     createClickFeedback(earned);
-    playSound(clickSound);
+    bunnyElement.classList.add('bunny-clicked');
+    setTimeout(() => bunnyElement.classList.remove('bunny-clicked'), 100);
     updateDisplay();
     saveGame();
     levelUp();
@@ -177,7 +152,6 @@ autoClickerUpgradeElement.addEventListener('click', () => {
         coins -= autoClickerCost;
         autoClickerCount++;
         autoClickerCost = Math.ceil(autoClickerCost * 1.15);
-        playSound(upgradeSound);
         updateDisplay();
         saveGame();
         checkAchievements();
@@ -189,7 +163,6 @@ multiplierUpgradeElement.addEventListener('click', () => {
         coins -= multiplierCost;
         multiplier++;
         multiplierCost = Math.ceil(multiplierCost * 1.3);
-        playSound(upgradeSound);
         updateDisplay();
         saveGame();
         checkAchievements();
@@ -235,8 +208,6 @@ closeLeaderboardButton.addEventListener('click', () => {
     leaderboardModal.style.display = 'none';
 });
 
-soundToggleElement.addEventListener('click', toggleSound);
-
 // Telegram Mini App integration
 if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.ready();
@@ -254,4 +225,3 @@ if (window.Telegram && window.Telegram.WebApp) {
 loadGame();
 updateDisplay();
 updateAchievements();
-updateSoundToggle();
