@@ -21,6 +21,16 @@ const showLeaderboardButton = document.getElementById('showLeaderboard');
 const closeLeaderboardButton = document.getElementById('closeLeaderboard');
 const leaderboardModal = document.getElementById('leaderboard');
 const leaderboardList = document.getElementById('leaderboardList');
+const achievementsElement = document.getElementById('achievements');
+const soundToggleElement = document.getElementById('soundToggle');
+
+let achievements = [];
+let soundEnabled = true;
+
+// Sound effects
+const clickSound = new Audio('click.mp3');
+const upgradeSound = new Audio('upgrade.mp3');
+const levelUpSound = new Audio('level-up.mp3');
 
 function loadGame() {
     const savedData = localStorage.getItem('bunnyCoinsGame');
@@ -32,7 +42,11 @@ function loadGame() {
         autoClickerCost = data.autoClickerCost;
         multiplierCost = data.multiplierCost;
         level = data.level;
+        achievements = data.achievements || [];
+        soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
         updateDisplay();
+        updateAchievements();
+        updateSoundToggle();
     }
 }
 
@@ -43,7 +57,9 @@ function saveGame() {
         multiplier: multiplier,
         autoClickerCost: autoClickerCost,
         multiplierCost: multiplierCost,
-        level: level
+        level: level,
+        achievements: achievements,
+        soundEnabled: soundEnabled
     };
     localStorage.setItem('bunnyCoinsGame', JSON.stringify(gameData));
 }
@@ -68,13 +84,79 @@ function createClickFeedback(amount) {
     setTimeout(() => clickFeedbackElement.removeChild(feedback), 1000);
 }
 
+function playSound(sound) {
+    if (soundEnabled) {
+        sound.play();
+    }
+}
+
+function updateSoundToggle() {
+    soundToggleElement.textContent = soundEnabled ? '🔊' : '🔇';
+}
+
+function toggleSound() {
+    soundEnabled = !soundEnabled;
+    updateSoundToggle();
+    saveGame();
+}
+
+function checkAchievements() {
+    const newAchievements = [
+        { id: 'coins100', name: '100 Coins', condition: () => coins >= 100, icon: '💰' },
+        { id: 'coins1000', name: '1,000 Coins', condition: () => coins >= 1000, icon: '🏆' },
+        { id: 'clickers10', name: '10 Auto Clickers', condition: () => autoClickerCount >= 10, icon: '🤖' },
+        { id: 'multiplier5', name: '5x Multiplier', condition: () => multiplier >= 5, icon: '✨' },
+        { id: 'level5', name: 'Reach Level 5', condition: () => level >= 5, icon: '🎖️' }
+    ];
+
+    newAchievements.forEach(achievement => {
+        if (!achievements.includes(achievement.id) && achievement.condition()) {
+            achievements.push(achievement.id);
+            displayAchievementNotification(achievement);
+        }
+    });
+
+    updateAchievements();
+    saveGame();
+}
+
+function displayAchievementNotification(achievement) {
+    const notification = document.createElement('div');
+    notification.className = 'achievement-notification';
+    notification.innerHTML = `${achievement.icon} Achievement Unlocked: ${achievement.name}`;
+    document.body.appendChild(notification);
+    setTimeout(() => document.body.removeChild(notification), 3000);
+}
+
+function updateAchievements() {
+    achievementsElement.innerHTML = '';
+    achievements.forEach(id => {
+        const achievement = [
+            { id: 'coins100', name: '100 Coins', icon: '💰' },
+            { id: 'coins1000', name: '1,000 Coins', icon: '🏆' },
+            { id: 'clickers10', name: '10 Auto Clickers', icon: '🤖' },
+            { id: 'multiplier5', name: '5x Multiplier', icon: '✨' },
+            { id: 'level5', name: 'Reach Level 5', icon: '🎖️' }
+        ].find(a => a.id === id);
+
+        if (achievement) {
+            const achievementElement = document.createElement('div');
+            achievementElement.className = 'achievement';
+            achievementElement.innerHTML = `${achievement.icon} ${achievement.name}`;
+            achievementsElement.appendChild(achievementElement);
+        }
+    });
+}
+
 function levelUp() {
     const levelUpCost = Math.pow(10, level);
     if (coins >= levelUpCost) {
         coins -= levelUpCost;
         level++;
+        playSound(levelUpSound);
         updateDisplay();
         saveGame();
+        checkAchievements();
         alert(`Congratulations! You've reached level ${level}!`);
     }
 }
@@ -83,9 +165,11 @@ bunnyElement.addEventListener('click', () => {
     const earned = multiplier;
     coins += earned;
     createClickFeedback(earned);
+    playSound(clickSound);
     updateDisplay();
     saveGame();
     levelUp();
+    checkAchievements();
 });
 
 autoClickerUpgradeElement.addEventListener('click', () => {
@@ -93,8 +177,10 @@ autoClickerUpgradeElement.addEventListener('click', () => {
         coins -= autoClickerCost;
         autoClickerCount++;
         autoClickerCost = Math.ceil(autoClickerCost * 1.15);
+        playSound(upgradeSound);
         updateDisplay();
         saveGame();
+        checkAchievements();
     }
 });
 
@@ -103,8 +189,10 @@ multiplierUpgradeElement.addEventListener('click', () => {
         coins -= multiplierCost;
         multiplier++;
         multiplierCost = Math.ceil(multiplierCost * 1.3);
+        playSound(upgradeSound);
         updateDisplay();
         saveGame();
+        checkAchievements();
     }
 });
 
@@ -116,10 +204,10 @@ setInterval(() => {
         updateDisplay();
         saveGame();
         levelUp();
+        checkAchievements();
     }
 }, 1000);
 
-// Leaderboard functionality
 function updateLeaderboard() {
     // In a real application, you would fetch this data from a server
     const leaderboardData = [
@@ -147,6 +235,8 @@ closeLeaderboardButton.addEventListener('click', () => {
     leaderboardModal.style.display = 'none';
 });
 
+soundToggleElement.addEventListener('click', toggleSound);
+
 // Telegram Mini App integration
 if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.ready();
@@ -163,3 +253,5 @@ if (window.Telegram && window.Telegram.WebApp) {
 
 loadGame();
 updateDisplay();
+updateAchievements();
+updateSoundToggle();
