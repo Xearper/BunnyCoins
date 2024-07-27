@@ -4,45 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BunnyCoins</title>
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div id="game-container">
-        <header>
-            <h1>BunnyCoins</h1>
-            <div id="user-info">
-                <span id="username">Player</span>
-                <span id="level">Level: 1</span>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div id="game-container" class="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl">
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-yellow-400 mb-2">BunnyCoins</h1>
+            <div id="user-info" class="flex justify-between text-sm mb-2">
+                <span id="username" class="text-gray-300">Player</span>
+                <span id="level" class="text-gray-300">Level: 1</span>
             </div>
-            <div id="coins">Coins: <span id="coinCount">0</span></div>
-            <div id="prestige-info">
-                <div>Prestige Points: <span id="prestigePoints">0</span></div>
-                <div>Prestige Multiplier: x<span id="prestigeMultiplier">1.00</span></div>
+            <div id="coins" class="text-2xl font-semibold text-yellow-300">Coins: <span id="coinCount">0</span></div>
+            <div id="prestige-info" class="flex justify-between text-sm mt-2">
+                <div class="text-purple-300">Prestige Points: <span id="prestigePoints">0</span></div>
+                <div class="text-purple-300">Multiplier: x<span id="prestigeMultiplier">1.00</span></div>
             </div>
         </header>
         <main>
-            <div id="bunny-container">
-                <div id="bunny">🐰</div>
-                <div id="click-feedback"></div>
+            <div id="bunny-container" class="relative h-40 flex items-center justify-center mb-6">
+                <div id="bunny" class="text-6xl cursor-pointer transition-transform duration-100 hover:scale-110">🐰</div>
+                <div id="click-feedback" class="absolute inset-0 pointer-events-none"></div>
             </div>
-            <div id="upgrades">
-                <h2>Upgrades</h2>
-                <button id="autoClickerUpgrade">Buy Auto Clicker (<span id="autoClickerCost">10</span> coins)</button>
-                <button id="multiplierUpgrade">Buy Multiplier (<span id="multiplierCost">50</span> coins)</button>
+            <div id="upgrades" class="mb-4">
+                <h2 class="text-xl font-semibold mb-2">Upgrades</h2>
+                <button id="autoClickerUpgrade" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mb-2 transition-colors duration-200">
+                    Buy Auto Clicker (<span id="autoClickerCost">10</span> coins)
+                </button>
+                <button id="multiplierUpgrade" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mb-2 transition-colors duration-200">
+                    Buy Multiplier (<span id="multiplierCost">50</span> coins)
+                </button>
             </div>
-            <button id="prestigeButton">Prestige (Requires Level 20)</button>
-            <div id="achievements"></div>
+            <button id="prestigeButton" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded mb-4 transition-colors duration-200">
+                Prestige (Requires Level 20)
+            </button>
+            <div id="achievements" class="flex flex-wrap justify-center gap-2 mb-4"></div>
         </main>
-        <footer>
+        <footer class="text-center text-sm text-gray-400">
             <p>Auto Clickers: <span id="autoClickerCount">0</span> | Multiplier: x<span id="multiplierValue">1</span></p>
         </footer>
-        <button id="showLeaderboard">Show Leaderboard</button>
+        <button id="showLeaderboard" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mt-4 transition-colors duration-200">
+            Show Leaderboard
+        </button>
     </div>
-    <div id="leaderboard" class="modal">
-        <div class="modal-content">
-            <h2>Leaderboard</h2>
-            <ul id="leaderboardList"></ul>
-            <button id="closeLeaderboard">Close</button>
+    <div id="leaderboard" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">Leaderboard</h2>
+            <ul id="leaderboardList" class="mb-4"></ul>
+            <button id="closeLeaderboard" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
+                Close
+            </button>
         </div>
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
