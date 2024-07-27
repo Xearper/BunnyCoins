@@ -76,5 +76,9 @@ loadGame();
 updateDisplay();
 
 // Telegram Mini App integration
-window.Telegram.WebApp.ready();
-window.Telegram.WebApp.expand();
+if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+} else {
+    console.log('Telegram WebApp is not available. Running in standalone mode.');
+}
