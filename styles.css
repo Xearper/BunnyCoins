@@ -1,7 +1,7 @@
 body {
     background-color: #021526;
     color: #F8EDED;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
@@ -16,6 +16,9 @@ body {
     width: 100%;
     max-width: 600px;
     padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 header {
@@ -25,10 +28,19 @@ header {
 h1 {
     font-size: 36px;
     margin: 0 0 10px;
+    color: #FFD700;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+#user-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
 }
 
 #coins {
     font-size: 24px;
+    color: #FFD700;
 }
 
 #bunny-container {
@@ -41,6 +53,10 @@ h1 {
     cursor: pointer;
     user-select: none;
     transition: transform 0.1s;
+}
+
+#bunny:hover {
+    transform: scale(1.1);
 }
 
 #bunny:active {
@@ -109,4 +125,56 @@ button:disabled {
 footer {
     margin-top: 20px;
     font-size: 14px;
+}
+
+#showLeaderboard {
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: white;
+}
+
+#showLeaderboard:hover {
+    background-color: #45a049;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #021526;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+#leaderboardList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#leaderboardList li {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+#closeLeaderboard {
+    background-color: #f44336;
+    color: white;
+}
+
+#closeLeaderboard:hover {
+    background-color: #d32f2f;
 }
