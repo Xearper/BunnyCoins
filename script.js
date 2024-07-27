@@ -61,20 +61,34 @@ function saveGame() {
         prestigeMultiplier: prestigeMultiplier
     };
     localStorage.setItem('bunnyCoinsGame', JSON.stringify(gameData));
+    updateLeaderboard();
 }
 
 function updateDisplay() {
-    coinCountElement.textContent = Math.floor(coins);
-    autoClickerCostElement.textContent = autoClickerCost;
-    multiplierCostElement.textContent = multiplierCost;
-    autoClickerCountElement.textContent = autoClickerCount;
-    multiplierValueElement.textContent = multiplier;
+    coinCountElement.textContent = Math.floor(coins).toLocaleString();
+    autoClickerCostElement.textContent = autoClickerCost.toLocaleString();
+    multiplierCostElement.textContent = multiplierCost.toLocaleString();
+    autoClickerCountElement.textContent = autoClickerCount.toLocaleString();
+    multiplierValueElement.textContent = multiplier.toLocaleString();
     levelElement.textContent = `Level: ${level}`;
     autoClickerUpgradeElement.disabled = coins < autoClickerCost;
     multiplierUpgradeElement.disabled = coins < multiplierCost;
-    prestigePointsElement.textContent = prestigePoints;
+    prestigePointsElement.textContent = prestigePoints.toLocaleString();
     prestigeMultiplierElement.textContent = prestigeMultiplier.toFixed(2);
     updatePrestigeButton();
+    
+    updateButtonStyles(autoClickerUpgradeElement, coins >= autoClickerCost);
+    updateButtonStyles(multiplierUpgradeElement, coins >= multiplierCost);
+}
+
+function updateButtonStyles(button, canAfford) {
+    if (canAfford) {
+        button.classList.remove('opacity-50', 'cursor-not-allowed');
+        button.classList.add('hover:bg-opacity-80');
+    } else {
+        button.classList.add('opacity-50', 'cursor-not-allowed');
+        button.classList.remove('hover:bg-opacity-80');
+    }
 }
 
 function updatePrestigeButton() {
@@ -83,6 +97,7 @@ function updatePrestigeButton() {
     prestigeButton.textContent = level < requiredLevel 
         ? `Prestige (Requires Level ${requiredLevel})` 
         : `Prestige (Gain ${calculatePrestigePointsGain()} Points)`;
+    updateButtonStyles(prestigeButton, level >= requiredLevel);
 }
 
 function calculatePrestigePointsGain() {
@@ -91,10 +106,12 @@ function calculatePrestigePointsGain() {
 
 function createClickFeedback(amount) {
     const feedback = document.createElement('div');
-    feedback.textContent = `+${amount}`;
-    feedback.className = 'click-feedback';
+    feedback.textContent = `+${amount.toLocaleString()}`;
+    feedback.className = 'absolute text-yellow-300 font-bold text-2xl pointer-events-none';
     feedback.style.left = `${Math.random() * 80 + 10}%`;
     feedback.style.top = `${Math.random() * 80 + 10}%`;
+    feedback.style.transform = 'translate(-50%, -50%)';
+    feedback.style.animation = 'float-up 1s ease-out';
     clickFeedbackElement.appendChild(feedback);
     setTimeout(() => clickFeedbackElement.removeChild(feedback), 1000);
 }
@@ -122,7 +139,7 @@ function checkAchievements() {
 
 function displayAchievementNotification(achievement) {
     const notification = document.createElement('div');
-    notification.className = 'achievement-notification';
+    notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg';
     notification.innerHTML = `${achievement.icon} Achievement Unlocked: ${achievement.name}`;
     document.body.appendChild(notification);
     setTimeout(() => document.body.removeChild(notification), 3000);
@@ -142,8 +159,8 @@ function updateAchievements() {
 
         if (achievement) {
             const achievementElement = document.createElement('div');
-            achievementElement.className = 'achievement';
-            achievementElement.innerHTML = `${achievement.icon} ${achievement.name}`;
+            achievementElement.className = 'bg-gray-700 rounded p-2 text-sm flex items-center';
+            achievementElement.innerHTML = `${achievement.icon} <span class="ml-1">${achievement.name}</span>`;
             achievementsElement.appendChild(achievementElement);
         }
     });
@@ -183,8 +200,8 @@ bunnyElement.addEventListener('click', () => {
     const earned = multiplier * prestigeMultiplier;
     coins += earned;
     createClickFeedback(earned);
-    bunnyElement.classList.add('bunny-clicked');
-    setTimeout(() => bunnyElement.classList.remove('bunny-clicked'), 100);
+    bunnyElement.classList.add('scale-110');
+    setTimeout(() => bunnyElement.classList.remove('scale-110'), 100);
     updateDisplay();
     saveGame();
     levelUp();
@@ -228,31 +245,63 @@ setInterval(() => {
 }, 1000);
 
 function updateLeaderboard() {
-    // In a real application, you would fetch this data from a server
-    const leaderboardData = [
-        { name: "Alice", score: 1000 },
-        { name: "Bob", score: 900 },
-        { name: "Charlie", score: 800 },
-        { name: "David", score: 700 },
-        { name: "Eve", score: 600 }
-    ];
-
+    const leaderboardData = JSON.parse(localStorage.getItem('bunnyCoinsLeaderboard')) || [];
+    const currentScore = Math.floor(coins);
+    
+    // Update the current user's score
+    const userIndex = leaderboardData.findIndex(entry => entry.name === username);
+    if (userIndex !== -1) {
+        leaderboardData[userIndex].score = Math.max(leaderboardData[userIndex].score, currentScore);
+    } else {
+        leaderboardData.push({ name: username, score: currentScore });
+    }
+    
+    // Sort leaderboard and keep top 5
+    leaderboardData.sort((a, b) => b.score - a.score);
+    const top5 = leaderboardData.slice(0, 5);
+    
+    localStorage.setItem('bunnyCoinsLeaderboard', JSON.stringify(top5));
+    
     leaderboardList.innerHTML = '';
-    leaderboardData.forEach((entry, index) => {
+    top5.forEach((entry, index) => {
         const li = document.createElement('li');
-        li.textContent = `${index + 1}. ${entry.name}: ${entry.score}`;
+        li.className = 'mb-2 p-2 bg-gray-700 rounded flex justify-between items-center';
+        li.innerHTML = `
+            <span class="font-bold">${index + 1}. ${entry.name}</span>
+            <span class="text-yellow-300">${entry.score.toLocaleString()} coins</span>
+        `;
         leaderboardList.appendChild(li);
     });
 }
 
 showLeaderboardButton.addEventListener('click', () => {
     updateLeaderboard();
-    leaderboardModal.style.display = 'block';
+    leaderboardModal.classList.remove('hidden');
 });
 
 closeLeaderboardButton.addEventListener('click', () => {
-    leaderboardModal.style.display = 'none';
+    leaderboardModal.classList.add('hidden');
 });
+
+// Function to restart user's progression
+function resetGame() {
+    if (confirm("Are you sure you want to reset your game progress? This action cannot be undone.")) {
+        coins = 0;
+        autoClickerCount = 0;
+        multiplier = 1;
+        autoClickerCost = 10;
+        multiplierCost = 50;
+        level = 1;
+        prestigePoints = 0;
+        prestigeMultiplier = 1;
+        achievements = [];
+        
+        updateDisplay();
+        updateAchievements();
+        saveGame();
+        alert("Your game progress has been reset.");
+    }
+}
 
 // Telegram Mini App integration
 if (window.Telegram && window.Telegram.WebApp) {
