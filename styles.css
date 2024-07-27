@@ -1,0 +1,48 @@
+body {
+    background-color: #021526;
+    color: #F8EDED;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#game-container {
+    text-align: center;
+}
+
+#coins {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+}
+
+#bunny {
+    font-size: 100px;
+    cursor: pointer;
+    user-select: none;
+    margin: 20px 0;
+}
+
+#upgrades {
+    margin-top: 20px;
+}
+
+button {
+    background-color: #F8EDED;
+    color: #021526;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #e0d6d6;
+}
