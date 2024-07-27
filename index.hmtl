@@ -18,5 +18,8 @@
     </div>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="script.js"></script>
+    <noscript>
+        <p>JavaScript is required to play BunnyCoins. Please enable JavaScript in your browser.</p>
+    </noscript>
 </body>
 </html>
