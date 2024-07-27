@@ -1,15 +1,31 @@
+/* Global Styles */
+:root {
+    --primary-color: #FFD700;
+    --background-color: #021526;
+    --text-color: #F8EDED;
+    --button-color: #F8EDED;
+    --button-text-color: #021526;
+    --upgrade-button-color: #4CAF50;
+    --upgrade-button-hover-color: #45a049;
+    --close-button-color: #f44336;
+    --close-button-hover-color: #d32f2f;
+    --achievement-bg-color: rgba(255, 255, 255, 0.1);
+}
+
 body {
-    background-color: #021526;
-    color: #F8EDED;
+    background-color: var(--background-color);
+    color: var(--text-color);
     font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
+
+/* Game Container */
 #game-container {
     text-align: center;
     width: 100%;
@@ -17,42 +33,76 @@ body {
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
+
+/* Header Styles */
 header {
     margin-bottom: 20px;
 }
+
 h1 {
     font-size: 36px;
     margin: 0 0 10px;
-    color: #FFD700;
+    color: var(--primary-color);
     text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    animation: glow 2s ease-in-out infinite alternate;
 }
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+    }
+    to {
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+}
+
 #user-info {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
+    font-size: 18px;
 }
+
 #coins {
     font-size: 24px;
-    color: #FFD700;
+    color: var(--primary-color);
+    font-weight: bold;
 }
+
+/* Bunny and Click Feedback */
 #bunny-container {
     position: relative;
     height: 200px;
+    margin-bottom: 20px;
 }
+
 #bunny {
     font-size: 100px;
     cursor: pointer;
     user-select: none;
-    transition: transform 0.1s;
+    transition: transform 0.1s, filter 0.1s;
 }
+
 #bunny:hover {
     transform: scale(1.1);
+    filter: brightness(1.2);
 }
+
 #bunny:active {
     transform: scale(0.95);
 }
+
+.bunny-clicked {
+    animation: bounce 0.5s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
 #click-feedback {
     position: absolute;
     width: 100%;
@@ -61,30 +111,40 @@ h1 {
     left: 0;
     pointer-events: none;
 }
+
 .click-feedback {
     position: absolute;
     font-size: 20px;
     font-weight: bold;
-    color: #FFD700;
+    color: var(--primary-color);
     animation: float-up 1s ease-out;
     pointer-events: none;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
 }
+
 @keyframes float-up {
     0% {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-25px) scale(1.2);
     }
     100% {
         opacity: 0;
-        transform: translateY(-50px);
+        transform: translateY(-50px) scale(1);
     }
 }
+
+/* Upgrades */
 #upgrades {
     margin-top: 20px;
 }
+
 button {
-    background-color: #F8EDED;
-    color: #021526;
+    background-color: var(--button-color);
+    color: var(--button-text-color);
     border: none;
     padding: 10px 20px;
     margin: 5px;
@@ -92,30 +152,54 @@ button {
     font-size: 16px;
     border-radius: 5px;
     transition: background-color 0.3s, transform 0.1s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 button:hover {
     background-color: #e0d6d6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
+
 button:active {
-    transform: scale(0.95);
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
+
 button:disabled {
     background-color: #555;
     color: #888;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
+
+#autoClickerUpgrade, #multiplierUpgrade {
+    background-color: var(--upgrade-button-color);
+    color: white;
+}
+
+#autoClickerUpgrade:hover, #multiplierUpgrade:hover {
+    background-color: var(--upgrade-button-hover-color);
+}
+
+/* Footer */
 footer {
     margin-top: 20px;
     font-size: 14px;
 }
+
+/* Leaderboard */
 #showLeaderboard {
     margin-top: 20px;
-    background-color: #4CAF50;
+    background-color: var(--upgrade-button-color);
     color: white;
 }
+
 #showLeaderboard:hover {
-    background-color: #45a049;
+    background-color: var(--upgrade-button-hover-color);
 }
+
 .modal {
     display: none;
     position: fixed;
@@ -125,46 +209,83 @@ footer {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0,0,0,0.6);
+    animation: fadeIn 0.3s ease-out;
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .modal-content {
-    background-color: #021526;
+    background-color: var(--background-color);
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
     max-width: 500px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    animation: slideDown 0.3s ease-out;
 }
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
 #leaderboardList {
     list-style-type: none;
     padding: 0;
 }
+
 #leaderboardList li {
     margin: 10px 0;
     font-size: 18px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    transition: background-color 0.3s;
 }
+
+#leaderboardList li:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
 #closeLeaderboard {
-    background-color: #f44336;
+    background-color: var(--close-button-color);
     color: white;
 }
+
 #closeLeaderboard:hover {
-    background-color: #d32f2f;
+    background-color: var(--close-button-hover-color);
 }
+
+/* Achievements */
 #achievements {
     margin-top: 20px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 10px;
 }
+
 .achievement {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--achievement-bg-color);
     border-radius: 5px;
     padding: 5px 10px;
-    margin: 5px;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
+
+.achievement:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .achievement-notification {
     position: fixed;
     top: 20px;
@@ -175,18 +296,102 @@ footer {
     padding: 10px 20px;
     border-radius: 5px;
     z-index: 1000;
-    animation: fadeInOut 3s ease-in-out;
+    animation: slideInOut 3s ease-in-out;
 }
-@keyframes fadeInOut {
-    0%, 100% { opacity: 0; }
-    10%, 90% { opacity: 1; }
+
+@keyframes slideInOut {
+    0%, 100% { 
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    10%, 90% { 
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
 }
-#soundToggle {
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    #game-container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    #coins {
+        font-size: 20px;
+    }
+
+    #bunny {
+        font-size: 80px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .modal-content {
+        width: 90%;
+        margin: 20% auto;
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 0.5s ease-in-out;
+}
+
+/* Additional UI Enhancements */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Scroll bar styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #e5c100;
 }
