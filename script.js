@@ -5,6 +5,8 @@ let autoClickerCost = 10;
 let multiplierCost = 50;
 let level = 1;
 let username = "Player";
+let prestigePoints = 0;
+let prestigeMultiplier = 1;
 
 const coinCountElement = document.getElementById('coinCount');
 const bunnyElement = document.getElementById('bunny');
@@ -22,6 +24,9 @@ const closeLeaderboardButton = document.getElementById('closeLeaderboard');
 const leaderboardModal = document.getElementById('leaderboard');
 const leaderboardList = document.getElementById('leaderboardList');
 const achievementsElement = document.getElementById('achievements');
+const prestigeButton = document.getElementById('prestigeButton');
+const prestigePointsElement = document.getElementById('prestigePoints');
+const prestigeMultiplierElement = document.getElementById('prestigeMultiplier');
 
 let achievements = [];
 
@@ -36,6 +41,8 @@ function loadGame() {
         multiplierCost = data.multiplierCost;
         level = data.level;
         achievements = data.achievements || [];
+        prestigePoints = data.prestigePoints || 0;
+        prestigeMultiplier = data.prestigeMultiplier || 1;
         updateDisplay();
         updateAchievements();
     }
@@ -49,7 +56,9 @@ function saveGame() {
         autoClickerCost: autoClickerCost,
         multiplierCost: multiplierCost,
         level: level,
-        achievements: achievements
+        achievements: achievements,
+        prestigePoints: prestigePoints,
+        prestigeMultiplier: prestigeMultiplier
     };
     localStorage.setItem('bunnyCoinsGame', JSON.stringify(gameData));
 }
@@ -63,6 +72,21 @@ function updateDisplay() {
     levelElement.textContent = `Level: ${level}`;
     autoClickerUpgradeElement.disabled = coins < autoClickerCost;
     multiplierUpgradeElement.disabled = coins < multiplierCost;
+    prestigePointsElement.textContent = prestigePoints;
+    prestigeMultiplierElement.textContent = prestigeMultiplier.toFixed(2);
+    updatePrestigeButton();
+}
+
+function updatePrestigeButton() {
+    const requiredLevel = 20;
+    prestigeButton.disabled = level < requiredLevel;
+    prestigeButton.textContent = level < requiredLevel 
+        ? `Prestige (Requires Level ${requiredLevel})` 
+        : `Prestige (Gain ${calculatePrestigePointsGain()} Points)`;
+}
+
+function calculatePrestigePointsGain() {
+    return Math.floor(Math.sqrt(coins / 1e12));
 }
 
 function createClickFeedback(amount) {
@@ -81,7 +105,8 @@ function checkAchievements() {
         { id: 'coins1000', name: '1,000 Coins', condition: () => coins >= 1000, icon: '🏆' },
         { id: 'clickers10', name: '10 Auto Clickers', condition: () => autoClickerCount >= 10, icon: '🤖' },
         { id: 'multiplier5', name: '5x Multiplier', condition: () => multiplier >= 5, icon: '✨' },
-        { id: 'level5', name: 'Reach Level 5', condition: () => level >= 5, icon: '🎖️' }
+        { id: 'level5', name: 'Reach Level 5', condition: () => level >= 5, icon: '🎖️' },
+        { id: 'prestige1', name: 'First Prestige', condition: () => prestigePoints >= 1, icon: '🌟' }
     ];
 
     newAchievements.forEach(achievement => {
@@ -111,7 +136,8 @@ function updateAchievements() {
             { id: 'coins1000', name: '1,000 Coins', icon: '🏆' },
             { id: 'clickers10', name: '10 Auto Clickers', icon: '🤖' },
             { id: 'multiplier5', name: '5x Multiplier', icon: '✨' },
-            { id: 'level5', name: 'Reach Level 5', icon: '🎖️' }
+            { id: 'level5', name: 'Reach Level 5', icon: '🎖️' },
+            { id: 'prestige1', name: 'First Prestige', icon: '🌟' }
         ].find(a => a.id === id);
 
         if (achievement) {
@@ -135,8 +161,26 @@ function levelUp() {
     }
 }
 
+function prestige() {
+    const pointsGain = calculatePrestigePointsGain();
+    if (pointsGain > 0) {
+        prestigePoints += pointsGain;
+        prestigeMultiplier = 1 + prestigePoints * 0.1;  // 10% increase per prestige point
+        coins = 0;
+        autoClickerCount = 0;
+        multiplier = 1;
+        autoClickerCost = 10;
+        multiplierCost = 50;
+        level = 1;
+        updateDisplay();
+        saveGame();
+        checkAchievements();
+        alert(`You've prestiged and gained ${pointsGain} Prestige Points!`);
+    }
+}
+
 bunnyElement.addEventListener('click', () => {
-    const earned = multiplier;
+    const earned = multiplier * prestigeMultiplier;
     coins += earned;
     createClickFeedback(earned);
     bunnyElement.classList.add('bunny-clicked');
@@ -169,8 +213,10 @@ multiplierUpgradeElement.addEventListener('click', () => {
     }
 });
 
+prestigeButton.addEventListener('click', prestige);
+
 setInterval(() => {
-    const earned = autoClickerCount * multiplier;
+    const earned = autoClickerCount * multiplier * prestigeMultiplier;
     if (earned > 0) {
         coins += earned;
         createClickFeedback(earned);
