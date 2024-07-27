@@ -4,7 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BunnyCoins</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #021526;
+            color: #F8EDED;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #game-container {
+            text-align: center;
+        }
+        #coins {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+        }
+        #bunny {
+            font-size: 100px;
+            cursor: pointer;
+            user-select: none;
+            margin: 20px 0;
+        }
+        #upgrades {
+            margin-top: 20px;
+        }
+        button {
+            background-color: #F8EDED;
+            color: #021526;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #e0d6d6;
+        }
+    </style>
 </head>
 <body>
     <div id="game-container">
@@ -16,10 +59,84 @@
             <button id="multiplierUpgrade">Buy Multiplier (Cost: 50 coins)</button>
         </div>
     </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js"></script>
-    <noscript>
-        <p>JavaScript is required to play BunnyCoins. Please enable JavaScript in your browser.</p>
-    </noscript>
+
+    <script>
+        let coins = 0;
+        let autoClickerCount = 0;
+        let multiplier = 1;
+        const coinCountElement = document.getElementById('coinCount');
+        const bunnyElement = document.getElementById('bunny');
+        const autoClickerUpgradeElement = document.getElementById('autoClickerUpgrade');
+        const multiplierUpgradeElement = document.getElementById('multiplierUpgrade');
+
+        function loadGame() {
+            const savedData = localStorage.getItem('bunnyCoinsGame');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                coins = data.coins;
+                autoClickerCount = data.autoClickerCount;
+                multiplier = data.multiplier;
+                updateDisplay();
+            }
+        }
+
+        function saveGame() {
+            const gameData = {
+                coins: coins,
+                autoClickerCount: autoClickerCount,
+                multiplier: multiplier
+            };
+            localStorage.setItem('bunnyCoinsGame', JSON.stringify(gameData));
+        }
+
+        function updateDisplay() {
+            coinCountElement.textContent = Math.floor(coins);
+            autoClickerUpgradeElement.textContent = `Buy Auto Clicker (Cost: ${10 * Math.pow(2, autoClickerCount)} coins)`;
+            multiplierUpgradeElement.textContent = `Buy Multiplier (Cost: ${50 * Math.pow(2, multiplier - 1)} coins)`;
+        }
+
+        bunnyElement.addEventListener('click', () => {
+            coins += multiplier;
+            updateDisplay();
+            saveGame();
+        });
+
+        autoClickerUpgradeElement.addEventListener('click', () => {
+            const cost = 10 * Math.pow(2, autoClickerCount);
+            if (coins >= cost) {
+                coins -= cost;
+                autoClickerCount++;
+                updateDisplay();
+                saveGame();
+            }
+        });
+
+        multiplierUpgradeElement.addEventListener('click', () => {
+            const cost = 50 * Math.pow(2, multiplier - 1);
+            if (coins >= cost) {
+                coins -= cost;
+                multiplier++;
+                updateDisplay();
+                saveGame();
+            }
+        });
+
+        setInterval(() => {
+            coins += autoClickerCount * multiplier;
+            updateDisplay();
+            saveGame();
+        }, 1000);
+
+        loadGame();
+        updateDisplay();
+
+        // Telegram Mini App integration
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        } else {
+            console.log('Telegram WebApp is not available. Running in standalone mode.');
+        }
+    </script>
 </body>
 </html>
